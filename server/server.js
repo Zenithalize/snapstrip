@@ -5,6 +5,16 @@ import { Server } from 'socket.io';
 const app = express();
 const server = createServer(app);
 
+// Health check route for browser visits
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'SnapStrip Co-Op Signaling Server',
+    activeRooms: rooms.size,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 const io = new Server(server, {
   cors: {
     origin: '*',

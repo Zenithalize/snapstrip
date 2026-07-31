@@ -7,8 +7,8 @@ const DEFAULT_SERVER_URL =
   (typeof window !== 'undefined'
     ? window.location.port === '5173'
       ? 'http://localhost:3001'
-      : window.location.origin
-    : 'http://localhost:3001');
+      : 'https://snapstrip.onrender.com'
+    : 'https://snapstrip.onrender.com');
 
 export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
   const [roomState, setRoomState] = useState<CoOpRoom>({
@@ -28,7 +28,9 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
 
     const socket = io(serverUrl, {
       autoConnect: false,
-      reconnectionAttempts: 3,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      timeout: 30000, // 30s timeout for Render free tier cold-start
     });
 
     socket.on('connect', () => {
@@ -49,7 +51,7 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
     });
 
     socket.on('connect_error', () => {
-      setError(`Could not connect to Co-Op signaling server at ${serverUrl}.`);
+      setError(`Server is waking up on Render (~30s). Please wait a moment and click Create Room again!`);
     });
 
     socketRef.current = socket;
@@ -58,12 +60,13 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
   }, [serverUrl]);
 
   const createRoom = useCallback(() => {
-    setError(null);
+    setError('Waking up server...');
     const socket = initSocket();
     socket.connect();
 
     socket.emit('create_room', (res: { code: string; ok: boolean }) => {
       if (res.ok) {
+        setError(null);
         setRoomState({
           code: res.code,
           isHost: true,
@@ -77,12 +80,13 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
 
   const joinRoom = useCallback(
     (code: string) => {
-      setError(null);
+      setError('Waking up server...');
       const socket = initSocket();
       socket.connect();
 
       socket.emit('join_room', { code: code.toUpperCase() }, (res: { ok: boolean; message?: string }) => {
         if (res.ok) {
+          setError(null);
           setRoomState({
             code: code.toUpperCase(),
             isHost: false,
