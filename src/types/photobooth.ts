@@ -79,6 +79,8 @@ export interface CoOpRoom {
   code: string;
   isHost: boolean;
   connected: boolean;
-  peerConnected: boolean;
+  playerIndex: number; // 0 to 5 (Player #1 to #6)
+  maxPlayers: number;  // 2 to 6
+  peerCount: number;   // number of other connected peers
   myTurn: boolean;
 }

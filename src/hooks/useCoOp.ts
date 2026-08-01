@@ -15,7 +15,9 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
     code: '',
     isHost: false,
     connected: false,
-    peerConnected: false,
+    playerIndex: 0,
+    maxPlayers: 6,
+    peerCount: 0,
     myTurn: true,
   });
 
@@ -30,7 +32,7 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
       autoConnect: false,
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
-      timeout: 30000, // 30s timeout for Render free tier cold-start
+      timeout: 30000,
     });
 
     socket.on('connect', () => {
@@ -39,15 +41,19 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
     });
 
     socket.on('disconnect', () => {
-      setRoomState((prev) => ({ ...prev, connected: false, peerConnected: false }));
+      setRoomState((prev) => ({ ...prev, connected: false, peerCount: 0 }));
     });
 
-    socket.on('peer_joined', () => {
-      setRoomState((prev) => ({ ...prev, peerConnected: true }));
-    });
-
-    socket.on('peer_left', () => {
-      setRoomState((prev) => ({ ...prev, peerConnected: false }));
+    socket.on('room_update', (data: { code: string; membersCount: number; maxPlayers: number; playerIndex: number; isHost: boolean }) => {
+      setRoomState((prev) => ({
+        ...prev,
+        code: data.code || prev.code,
+        isHost: data.isHost,
+        playerIndex: data.playerIndex,
+        maxPlayers: data.maxPlayers || prev.maxPlayers,
+        peerCount: Math.max(0, data.membersCount - 1),
+        connected: true,
+      }));
     });
 
     socket.on('connect_error', () => {
@@ -59,24 +65,29 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
     return socket;
   }, [serverUrl]);
 
-  const createRoom = useCallback(() => {
-    setError('Waking up server...');
-    const socket = initSocket();
-    socket.connect();
+  const createRoom = useCallback(
+    (maxPlayers = 6) => {
+      setError('Waking up server...');
+      const socket = initSocket();
+      socket.connect();
 
-    socket.emit('create_room', (res: { code: string; ok: boolean }) => {
-      if (res.ok) {
-        setError(null);
-        setRoomState({
-          code: res.code,
-          isHost: true,
-          connected: true,
-          peerConnected: false,
-          myTurn: true,
-        });
-      }
-    });
-  }, [initSocket]);
+      socket.emit('create_room', { maxPlayers }, (res: { code: string; ok: boolean; playerIndex?: number; maxPlayers?: number }) => {
+        if (res.ok) {
+          setError(null);
+          setRoomState({
+            code: res.code,
+            isHost: true,
+            connected: true,
+            playerIndex: res.playerIndex ?? 0,
+            maxPlayers: res.maxPlayers || maxPlayers,
+            peerCount: 0,
+            myTurn: true,
+          });
+        }
+      });
+    },
+    [initSocket]
+  );
 
   const joinRoom = useCallback(
     (code: string) => {
@@ -84,14 +95,18 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
       const socket = initSocket();
       socket.connect();
 
-      socket.emit('join_room', { code: code.toUpperCase() }, (res: { ok: boolean; message?: string }) => {
+      const cleanCode = code ? code.toUpperCase().trim() : '';
+
+      socket.emit('join_room', { code: cleanCode }, (res: { ok: boolean; message?: string; playerIndex?: number; maxPlayers?: number }) => {
         if (res.ok) {
           setError(null);
           setRoomState({
-            code: code.toUpperCase(),
+            code: cleanCode,
             isHost: false,
             connected: true,
-            peerConnected: true,
+            playerIndex: res.playerIndex ?? 1,
+            maxPlayers: res.maxPlayers || 6,
+            peerCount: 1,
             myTurn: false,
           });
         } else {
@@ -124,7 +139,9 @@ export function useCoOp(serverUrl = DEFAULT_SERVER_URL) {
       code: '',
       isHost: false,
       connected: false,
-      peerConnected: false,
+      playerIndex: 0,
+      maxPlayers: 6,
+      peerCount: 0,
       myTurn: true,
     });
     setError(null);

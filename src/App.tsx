@@ -42,10 +42,10 @@ export function App() {
       const isCoOp = roomState.connected && !!roomState.code;
 
       if (isCoOp) {
-        // Interleaved logic:
-        // Host captures even slots: 0, 2, 4
-        // Guest captures odd slots: 1, 3, 5
-        const isMyTurn = roomState.isHost ? shotIdx % 2 === 0 : shotIdx % 2 === 1;
+        // Multi-player Interleaved turn logic (supports 2 to 6 players!):
+        const totalPlayers = Math.max(1, roomState.peerCount + 1);
+        const myIndex = roomState.playerIndex;
+        const isMyTurn = shotIdx % totalPlayers === myIndex;
 
         if (isMyTurn) {
           const dataUrl = captureFrame(!isMirroredPreview);
@@ -55,7 +55,7 @@ export function App() {
           }
         }
       } else {
-        // Solo mode: capture all shots
+        // Solo mode: capture all 6 shots
         const dataUrl = captureFrame(!isMirroredPreview);
         if (dataUrl) {
           setFrameAt(shotIdx, dataUrl);
@@ -93,7 +93,7 @@ export function App() {
     if (!socket) return;
 
     const handleReceiveFrame = (data: { slot: number; dataUrl: string }) => {
-      setFrameAt(data.slot, data.dataUrl, roomState.isHost ? 'guest' : 'host');
+      setFrameAt(data.slot, data.dataUrl, 'guest');
     };
 
     const handleShootStartBroadcast = async () => {
@@ -244,7 +244,7 @@ export function App() {
         )}
       </main>
 
-      {/* Co-Op Multiplayer Modal */}
+      {/* Co-Op Party Modal (Supports up to 6 players!) */}
       <CoOpModal
         isOpen={isCoOpModalOpen}
         onClose={() => setIsCoOpModalOpen(false)}
