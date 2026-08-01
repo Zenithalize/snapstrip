@@ -23,7 +23,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-purple-100 px-3 py-2 sm:px-4 sm:py-3 shadow-xs">
+    <header className="relative lg:sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-purple-100 px-3 py-2.5 sm:px-4 sm:py-3 shadow-xs">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         {/* Logo */}
         <div

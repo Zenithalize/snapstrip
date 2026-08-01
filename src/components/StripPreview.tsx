@@ -54,7 +54,7 @@ export const StripPreview: React.FC<StripPreviewProps> = ({
 
         if (containerRef.current) {
           containerRef.current.innerHTML = '';
-          canvas.className = 'w-full h-auto rounded-2xl shadow-2xl border border-purple-100';
+          canvas.className = 'w-full h-auto rounded-2xl shadow-2xl border border-purple-100 block';
           containerRef.current.appendChild(canvas);
         }
 
@@ -66,7 +66,7 @@ export const StripPreview: React.FC<StripPreviewProps> = ({
       } finally {
         setIsComposing(false);
       }
-    }, 150); // 150ms debounce to prevent thrashing
+    }, 150);
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -74,7 +74,7 @@ export const StripPreview: React.FC<StripPreviewProps> = ({
   }, [frames, layout, background, filterId, meta, stickers, onCanvasGenerated]);
 
   return (
-    <div className="relative flex justify-center items-center p-2">
+    <div className="relative w-full flex justify-center items-center p-1 sm:p-2">
       {/* Loading Overlay */}
       {isComposing && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/40 backdrop-blur-xs rounded-2xl">
@@ -89,7 +89,7 @@ export const StripPreview: React.FC<StripPreviewProps> = ({
       <div
         id="printable-strip"
         ref={containerRef}
-        className="w-full max-w-[380px] sm:max-w-[440px] aspect-[2/3] transition-all"
+        className="w-full max-w-[310px] sm:max-w-[420px] transition-all flex justify-center overflow-hidden"
       />
     </div>
   );

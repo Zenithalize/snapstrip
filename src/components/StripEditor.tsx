@@ -169,11 +169,11 @@ export const StripEditor: React.FC<StripEditorProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
-      {/* Editor Responsive Layout Grid (Order optimized for Mobile vs Desktop) */}
-      <div className="grid lg:grid-cols-12 gap-6 items-start">
-        {/* Center Column: Live Strip Preview (Order 1 on Mobile, Order 2 on Desktop) */}
-        <div className="lg:col-span-5 flex flex-col items-center order-1 lg:order-2">
-          <div ref={previewWrapperRef} className="relative w-full max-w-[340px] sm:max-w-[440px]">
+      {/* Editor Layout (flex-col on Mobile Safari to ensure clean vertical document flow) */}
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start">
+        {/* Top: Live Strip Preview */}
+        <div className="w-full lg:col-span-5 flex flex-col items-center">
+          <div ref={previewWrapperRef} className="relative w-full max-w-[310px] sm:max-w-[420px] mx-auto">
             <StripPreview
               frames={frames}
               background={background}
@@ -223,8 +223,8 @@ export const StripEditor: React.FC<StripEditorProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Customization Controls (Order 2 on Mobile, Order 3 on Desktop) */}
-        <div className="lg:col-span-4 space-y-4 order-2 lg:order-3">
+        {/* Middle: Customization Controls (Filters, Theme, Stickers, Text) */}
+        <div className="w-full lg:col-span-4 space-y-4">
           <div className="glass-panel p-4 sm:p-5 rounded-3xl space-y-4">
             {/* Customization Tabs */}
             <div className="flex items-center gap-1 bg-purple-50 p-1 rounded-2xl border border-purple-100 text-xs font-bold">
@@ -488,8 +488,8 @@ export const StripEditor: React.FC<StripEditorProps> = ({
           </div>
         </div>
 
-        {/* Left Column: Frame Slot Manager & Retake (Order 3 on Mobile, Order 1 on Desktop) */}
-        <div className="lg:col-span-3 space-y-4 order-3 lg:order-1">
+        {/* Bottom: Frame Slot Manager & Retake Actions */}
+        <div className="w-full lg:col-span-3 space-y-4">
           <div className="glass-panel p-4 rounded-3xl space-y-3">
             <h3 className="font-heading font-bold text-sm text-purple-900 flex items-center gap-1.5">
               <span>Frame Slots & Actions</span>
@@ -506,7 +506,7 @@ export const StripEditor: React.FC<StripEditorProps> = ({
                       <img
                         src={frame.dataUrl}
                         alt={`Slot ${idx + 1}`}
-                        className={`w-full h-full object-cover ${frame.mirrored ? 'scale-x-[-1]' : ''}`}
+                        className={`w-full h-full object-cover object-[center_25%] ${frame.mirrored ? 'scale-x-[-1]' : ''}`}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-purple-300">
