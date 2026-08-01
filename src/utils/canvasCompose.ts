@@ -212,7 +212,7 @@ export async function composeStrip(
           ctx.filter = filterCss;
         }
 
-        // Face-centered intelligent cover cropping (handles mobile portrait & desktop landscape feeds)
+        // Intelligent Face-Centered Framing (perfect for both mobile portrait selfie feeds & desktop landscape feeds)
         const imgRatio = img.width / img.height;
         const frameRatio = frameW / frameH;
 
@@ -222,15 +222,18 @@ export async function composeStrip(
         let offsetY = 0;
 
         if (imgRatio > frameRatio) {
-          // Landscape photo: center horizontally
+          // Landscape image: center horizontally
           drawH = frameH;
           drawW = frameH * imgRatio;
           offsetX = (frameW - drawW) / 2;
         } else {
-          // Portrait photo (common on mobile selfie cameras): center face vertically
-          drawW = frameW;
-          drawH = frameW / imgRatio;
-          offsetY = Math.min(0, Math.max(frameH - drawH, (frameH - drawH) * 0.25));
+          // Portrait selfie image (common on mobile phones):
+          // Scale to 1.12x frame width to preserve full face, head, hair, and chin without extreme zoom!
+          drawW = frameW * 1.12;
+          drawH = drawW / imgRatio;
+          offsetX = (frameW - drawW) / 2;
+          // Position top of head comfortably with 15% top margin offset
+          offsetY = Math.min(0, Math.max(frameH - drawH, -(drawH - frameH) * 0.15));
         }
 
         ctx.drawImage(img, x + offsetX, y + offsetY, drawW, drawH);
