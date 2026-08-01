@@ -10,6 +10,7 @@ import type {
 } from '../types/photobooth';
 import { StripPreview } from './StripPreview';
 import { FilterPicker } from './FilterPicker';
+import { CropModal } from './CropModal';
 import {
   FlipHorizontal,
   RotateCcw,
@@ -22,6 +23,7 @@ import {
   Move,
   Maximize2,
   RotateCw,
+  Crop as CropIcon,
 } from 'lucide-react';
 
 interface StripEditorProps {
@@ -30,6 +32,7 @@ interface StripEditorProps {
   onRetakeSlot: (slotIdx: number) => void;
   onToggleMirrorSlot: (slotIdx: number) => void;
   onToggleBlankSlot: (slotIdx: number) => void;
+  onSaveCropSlot?: (slotIdx: number, newCropDataUrl: string) => void;
   background: BackgroundConfig;
   onChangeBackground: (bg: BackgroundConfig) => void;
   selectedFilter: FilterId;
@@ -99,6 +102,7 @@ export const StripEditor: React.FC<StripEditorProps> = ({
   onRetakeSlot,
   onToggleMirrorSlot,
   onToggleBlankSlot,
+  onSaveCropSlot,
   background,
   onChangeBackground,
   selectedFilter,
@@ -114,6 +118,7 @@ export const StripEditor: React.FC<StripEditorProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'filter' | 'bg' | 'stickers' | 'text'>('filter');
   const [selectedStickerId, setSelectedStickerId] = useState<string | null>(null);
+  const [cropSlotIdx, setCropSlotIdx] = useState<number | null>(null);
   const previewWrapperRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef(false);
 
@@ -166,6 +171,7 @@ export const StripEditor: React.FC<StripEditorProps> = ({
   };
 
   const activeSticker = stickers.find((s) => s.id === selectedStickerId);
+  const croppingFrame = cropSlotIdx !== null ? frames[cropSlotIdx] : null;
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
@@ -520,6 +526,15 @@ export const StripEditor: React.FC<StripEditorProps> = ({
 
                   {/* Slot Action Controls */}
                   <div className="flex-1 flex items-center justify-end gap-1">
+                    {!frame.isBlank && onSaveCropSlot && (
+                      <button
+                        onClick={() => setCropSlotIdx(idx)}
+                        title="Crop / adjust framing for this shot"
+                        className="p-1.5 rounded-lg bg-pink-50 hover:bg-pink-100 text-pink-700 transition-colors"
+                      >
+                        <CropIcon className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     <button
                       onClick={() => onRetakeSlot(idx)}
                       title="Retake this single shot"
@@ -552,6 +567,20 @@ export const StripEditor: React.FC<StripEditorProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Interactive Photo Crop Modal */}
+      {cropSlotIdx !== null && onSaveCropSlot && (
+        <CropModal
+          isOpen={cropSlotIdx !== null}
+          onClose={() => setCropSlotIdx(null)}
+          frame={croppingFrame}
+          slotIdx={cropSlotIdx}
+          onSaveCrop={(idx, croppedUrl) => {
+            onSaveCropSlot(idx, croppedUrl);
+            setCropSlotIdx(null);
+          }}
+        />
+      )}
     </div>
   );
 };

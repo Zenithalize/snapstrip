@@ -121,6 +121,13 @@ export function App() {
     [startCamera, retakeSingleShot]
   );
 
+  const handleSaveCropSlot = useCallback(
+    (slotIdx: number, newCropDataUrl: string) => {
+      setFrameAt(slotIdx, newCropDataUrl);
+    },
+    [setFrameAt]
+  );
+
   const handleRetakeLastShot = useCallback(() => {
     if (currentShot > 0) {
       retakeSingleShot(currentShot - 1);
@@ -224,6 +231,7 @@ export function App() {
             onRetakeSlot={handleRetakeSingleSlot}
             onToggleMirrorSlot={toggleFrameMirror}
             onToggleBlankSlot={toggleFrameBlank}
+            onSaveCropSlot={handleSaveCropSlot}
             background={background}
             onChangeBackground={setBackground}
             selectedFilter={selectedFilter}
@@ -244,7 +252,7 @@ export function App() {
         )}
       </main>
 
-      {/* Co-Op Party Modal (Supports up to 6 players!) */}
+      {/* Co-Op Party Modal */}
       <CoOpModal
         isOpen={isCoOpModalOpen}
         onClose={() => setIsCoOpModalOpen(false)}
