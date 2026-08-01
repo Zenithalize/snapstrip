@@ -212,7 +212,7 @@ export async function composeStrip(
           ctx.filter = filterCss;
         }
 
-        // Object-fit: cover calculation
+        // Face-centered intelligent cover cropping (handles mobile portrait & desktop landscape feeds)
         const imgRatio = img.width / img.height;
         const frameRatio = frameW / frameH;
 
@@ -222,13 +222,15 @@ export async function composeStrip(
         let offsetY = 0;
 
         if (imgRatio > frameRatio) {
+          // Landscape photo: center horizontally
           drawH = frameH;
           drawW = frameH * imgRatio;
           offsetX = (frameW - drawW) / 2;
         } else {
+          // Portrait photo (common on mobile selfie cameras): center face vertically
           drawW = frameW;
           drawH = frameW / imgRatio;
-          offsetY = (frameH - drawH) / 2;
+          offsetY = Math.min(0, Math.max(frameH - drawH, (frameH - drawH) * 0.25));
         }
 
         ctx.drawImage(img, x + offsetX, y + offsetY, drawW, drawH);

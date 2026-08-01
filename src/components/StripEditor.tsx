@@ -75,7 +75,7 @@ const PRESET_STICKERS = [
   },
   {
     name: 'Glossy Cherry',
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="35" cy="65" r="18" fill="#dc2626" stroke="#ffffff" stroke-width="2"/><circle cx="70" cy="72" r="18" fill="#dc2626" stroke="#width="2"/><circle cx="28" cy="58" r="4" fill="#ffffff" opacity="0.7"/><circle cx="63" cy="65" r="4" fill="#ffffff" opacity="0.7"/><path stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round" d="M35 50 Q 52 18 65 15 M70 56 Q 58 22 65 15"/></svg>`,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="35" cy="65" r="18" fill="#dc2626" stroke="#ffffff" stroke-width="2"/><circle cx="70" cy="72" r="18" fill="#dc2626" stroke="#ffffff" stroke-width="2"/><circle cx="28" cy="58" r="4" fill="#ffffff" opacity="0.7"/><circle cx="63" cy="65" r="4" fill="#ffffff" opacity="0.7"/><path stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round" d="M35 50 Q 52 18 65 15 M70 56 Q 58 22 65 15"/></svg>`,
   },
   {
     name: 'Cute Speech',
@@ -168,76 +168,12 @@ export const StripEditor: React.FC<StripEditorProps> = ({
   const activeSticker = stickers.find((s) => s.id === selectedStickerId);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-      {/* Editor Grid Layout */}
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
+      {/* Editor Responsive Layout Grid (Order optimized for Mobile vs Desktop) */}
       <div className="grid lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Frame Slot Manager & Retake (3 cols) */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="glass-panel p-4 rounded-3xl space-y-3">
-            <h3 className="font-heading font-bold text-sm text-purple-900 flex items-center gap-1.5">
-              <span>Frame Slots & Actions</span>
-            </h3>
-            <div className="space-y-2.5">
-              {frames.map((frame, idx) => (
-                <div
-                  key={frame.id}
-                  className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-purple-100 shadow-xs"
-                >
-                  {/* Frame Thumbnail */}
-                  <div className="w-16 h-12 rounded-xl overflow-hidden bg-purple-50 border border-purple-200 shrink-0 relative">
-                    {!frame.isBlank ? (
-                      <img
-                        src={frame.dataUrl}
-                        alt={`Slot ${idx + 1}`}
-                        className={`w-full h-full object-cover ${frame.mirrored ? 'scale-x-[-1]' : ''}`}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-purple-300">
-                        Blank
-                      </div>
-                    )}
-                    <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[9px] font-bold px-1 rounded">
-                      #{idx + 1}
-                    </div>
-                  </div>
-
-                  {/* Slot Action Controls */}
-                  <div className="flex-1 flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => onRetakeSlot(idx)}
-                      title="Retake this single shot"
-                      className="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 transition-colors"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => onToggleMirrorSlot(idx)}
-                      title="Toggle flip mirror"
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        frame.mirrored ? 'bg-purple-600 text-white' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-                      }`}
-                    >
-                      <FlipHorizontal className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => onToggleBlankSlot(idx)}
-                      title="Toggle blank slot"
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        frame.isBlank ? 'bg-amber-500 text-white' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-                      }`}
-                    >
-                      <EyeOff className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Center Column: Live Strip Preview with Interactive Sticker Overlays (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col items-center">
-          <div ref={previewWrapperRef} className="relative w-full max-w-[380px] sm:max-w-[440px]">
+        {/* Center Column: Live Strip Preview (Order 1 on Mobile, Order 2 on Desktop) */}
+        <div className="lg:col-span-5 flex flex-col items-center order-1 lg:order-2">
+          <div ref={previewWrapperRef} className="relative w-full max-w-[340px] sm:max-w-[440px]">
             <StripPreview
               frames={frames}
               background={background}
@@ -267,7 +203,7 @@ export const StripEditor: React.FC<StripEditorProps> = ({
                 >
                   <div
                     dangerouslySetInnerHTML={{ __html: stk.svg }}
-                    className="w-16 h-16 pointer-events-none drop-shadow-md"
+                    className="w-14 h-14 sm:w-16 sm:h-16 pointer-events-none drop-shadow-md"
                   />
                   {isSelected && (
                     <button
@@ -287,9 +223,9 @@ export const StripEditor: React.FC<StripEditorProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Customization Controls (4 cols) */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="glass-panel p-5 rounded-3xl space-y-4">
+        {/* Right Column: Customization Controls (Order 2 on Mobile, Order 3 on Desktop) */}
+        <div className="lg:col-span-4 space-y-4 order-2 lg:order-3">
+          <div className="glass-panel p-4 sm:p-5 rounded-3xl space-y-4">
             {/* Customization Tabs */}
             <div className="flex items-center gap-1 bg-purple-50 p-1 rounded-2xl border border-purple-100 text-xs font-bold">
               <button
@@ -376,9 +312,9 @@ export const StripEditor: React.FC<StripEditorProps> = ({
                     <button
                       key={stk.name}
                       onClick={() => handleAddPresetSticker(stk.name, stk.svg)}
-                      className="p-2.5 bg-white rounded-2xl border border-purple-100 hover:border-pink-300 hover:shadow-sm transition-all flex flex-col items-center gap-1.5 group shrink-0 overflow-hidden"
+                      className="p-2 bg-white rounded-2xl border border-purple-100 hover:border-pink-300 hover:shadow-sm transition-all flex flex-col items-center gap-1.5 group shrink-0 overflow-hidden"
                     >
-                      <div className="w-9 h-9 flex items-center justify-center shrink-0 overflow-hidden pointer-events-none">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0 overflow-hidden pointer-events-none">
                         <div
                           dangerouslySetInnerHTML={{ __html: stk.svg }}
                           className="w-full h-full max-w-full max-h-full object-contain group-hover:scale-110 transition-transform"
@@ -548,6 +484,70 @@ export const StripEditor: React.FC<StripEditorProps> = ({
                 <span>Proceed to Export & Share</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Left Column: Frame Slot Manager & Retake (Order 3 on Mobile, Order 1 on Desktop) */}
+        <div className="lg:col-span-3 space-y-4 order-3 lg:order-1">
+          <div className="glass-panel p-4 rounded-3xl space-y-3">
+            <h3 className="font-heading font-bold text-sm text-purple-900 flex items-center gap-1.5">
+              <span>Frame Slots & Actions</span>
+            </h3>
+            <div className="space-y-2.5">
+              {frames.map((frame, idx) => (
+                <div
+                  key={frame.id}
+                  className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-purple-100 shadow-xs"
+                >
+                  {/* Frame Thumbnail */}
+                  <div className="w-16 h-12 rounded-xl overflow-hidden bg-purple-50 border border-purple-200 shrink-0 relative">
+                    {!frame.isBlank ? (
+                      <img
+                        src={frame.dataUrl}
+                        alt={`Slot ${idx + 1}`}
+                        className={`w-full h-full object-cover ${frame.mirrored ? 'scale-x-[-1]' : ''}`}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-purple-300">
+                        Blank
+                      </div>
+                    )}
+                    <div className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[9px] font-bold px-1 rounded">
+                      #{idx + 1}
+                    </div>
+                  </div>
+
+                  {/* Slot Action Controls */}
+                  <div className="flex-1 flex items-center justify-end gap-1">
+                    <button
+                      onClick={() => onRetakeSlot(idx)}
+                      title="Retake this single shot"
+                      className="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 transition-colors"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onToggleMirrorSlot(idx)}
+                      title="Toggle flip mirror"
+                      className={`p-1.5 rounded-lg transition-colors ${
+                        frame.mirrored ? 'bg-purple-600 text-white' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+                      }`}
+                    >
+                      <FlipHorizontal className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onToggleBlankSlot(idx)}
+                      title="Toggle blank slot"
+                      className={`p-1.5 rounded-lg transition-colors ${
+                        frame.isBlank ? 'bg-amber-500 text-white' : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+                      }`}
+                    >
+                      <EyeOff className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
